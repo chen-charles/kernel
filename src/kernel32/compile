@@ -1,0 +1,10 @@
+#!/bin/sh
+rm -f ./kernel32
+python3 makefile_cobj.py
+make	
+python3 makefile_asmobj.py
+make	
+python3 makefile_cppobj.py
+make	
+python3 link_kernel.py
+python3 clean_obj.py

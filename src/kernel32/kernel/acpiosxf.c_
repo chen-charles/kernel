@@ -1,0 +1,72 @@
+
+
+//results are in acexcep.h
+
+ACPI_STATUS AcpiOsInitialize()
+{
+    return AE_OK;
+}
+
+ACPI_STATUS AcpiOsTerminate()
+{
+    return AE_OK;
+}
+
+ACPI_PHYSICAL_ADDRESS AcpiOsGetRootPointer()
+{
+	ACPI_SIZE Ret;
+	AcpiFindRootPointer(&Ret);
+	return Ret;
+}
+
+ACPI_STATUS AcpiOsPredefinedOverride(const ACPI_PREDEFINED_NAMES *PredefinedObject, ACPI_STRING *NewValue)
+{
+    NewValue = (ACPI_STRING *)0;
+}
+
+ACPI_STATUS AcpiOsTableOverride(ACPI_TABLE_HEADER *ExistingTable, ACPI_TABLE_HEADER **NewTable)
+{
+    NewValue = (ACPI_TABLE_HEADER **)0;
+}
+
+//!!! Need Review
+void *AcpiOsMapMemory(ACPI_PHYSICAL_ADDRESS PhysicalAddress, ACPI_SIZE Length)
+{
+    return PhysicalAddress;
+}
+
+void AcpiOsUnmapMemory(void *where, ACPI_SIZE length)
+{
+    return;
+}
+
+ACPI_STATUS AcpiOsGetPhysicalAddress(void *LogicalAddress, ACPI_PHYSICAL_ADDRESS *PhysicalAddress)
+{
+    PhysicalAddress = (ACPI_PHYSICAL_ADDRESS *)LogicalAddress;
+    return  AE_OK;
+}
+
+void *AcpiOsAllocate(ACPI_SIZE Size)
+{
+    return malloc((size_t)size);
+}
+
+void AcpiOsFree(void *Memory)
+{
+    free(Memory);
+}
+
+//!!!Need Review
+BOOLEAN AcpiOsReadable(void *Memory, ACPI_SIZE Length)
+{
+    return true;
+}
+
+BOOLEAN AcpiOsWritable(void *Memory, ACPI_SIZE Length)
+{
+    return true;
+}
+
+#define ACPI_CACHE_T                ACPI_MEMORY_LIST
+#define ACPI_USE_LOCAL_CACHE        1
+

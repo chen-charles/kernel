@@ -1,0 +1,6 @@
+#!/bin/sh
+cd src
+bash ./compile
+cd ..
+cp -v ./src/kernel32/kernel32	./iso
+grub-mkrescue -o system.iso iso/

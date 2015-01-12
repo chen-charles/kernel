@@ -1,0 +1,9 @@
+#!/bin/sh
+cd kernel32
+bash ./compile
+cd ..
+
+#cd kernel-daemon
+#bash ./compile
+#cd ..
+

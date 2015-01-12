@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/chen/kernel/src/kernel32/lib/libcxxrt/src/libelftc_dem_gnu3.c
+sys/types.h
+-
+assert.h
+-
+ctype.h
+-
+errno.h
+-
+limits.h
+-
+stdbool.h
+-
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+

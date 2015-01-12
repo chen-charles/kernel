@@ -1,0 +1,2 @@
+/home/chen/kernel/src/kernel32/lib/libcxxrt/src/CMakeFiles/cxxrt-shared.dir
+/home/chen/kernel/src/kernel32/lib/libcxxrt/src/CMakeFiles/cxxrt-static.dir

@@ -1,0 +1,407 @@
+%include	"asm.inc"
+;no matter the c type is, the c_param s are always aligned
+
+global in_byte
+global out_byte
+global in_word
+global out_word
+global in_dword
+global out_dword
+global readmsr
+global writemsr
+global ltr
+global __sti__
+global __cli__
+global retrieve_ptr
+global elf_load
+global is_fpu_present
+global is_sse_present
+global get_cr0
+global set_cr0
+global set_cr3
+global get_cr4
+global set_cr4
+global fxsave
+global fxrstor
+
+;byte in_byte(uint16_t portid);
+in_byte:
+	push	ebp
+	mov	ebp, esp
+	push	edx
+
+	mov	dx, [c_param(0)]
+	in	al, dx
+
+	pop	edx
+	pop	ebp
+	ret
+
+;byte out_byte(uint16_t portid, byte b);
+out_byte:
+	push	ebp
+	mov	ebp, esp
+	push	edx
+        push    ecx
+
+        xor     edx, edx
+	mov	dx, [c_param(0)]
+	mov	al, [c_param(1)]
+
+	out	dx, al
+
+        pop     ecx
+	pop	edx
+	pop	ebp
+	ret
+
+;word in_word(uint16_t portid);
+in_word:
+	push	ebp
+	mov	ebp, esp
+	push	edx
+
+	mov	dx, [c_param(0)]
+	in	ax, dx
+
+	pop	edx
+	pop	ebp
+	ret
+
+;word out_word(uint16_t portid, word w);
+out_word:
+	push	ebp
+	mov	ebp, esp
+	push	edx
+
+        push    eax
+        push    ecx
+
+	mov	dx, [c_param(0)]
+	mov	ax, [c_param(1)]
+
+
+	out	dx, ax
+
+        pop     ecx
+        pop     eax
+	pop	edx
+	pop	ebp
+	ret
+
+;dword in_dword(uint16_t portid);
+in_dword:
+	push	ebp
+	mov	ebp, esp
+	push	edx
+
+	mov	dx, [c_param(0)]
+	in	eax, dx
+
+	pop	edx
+	pop	ebp
+	ret
+
+;dword out_dword(uint16_t portid, dword d);
+out_dword:
+	push	ebp
+	mov	ebp, esp
+	push	edx
+
+	mov	dx, [c_param(0)]
+	mov	eax, [c_param(1)]
+	out	dx, eax
+
+	pop	edx
+	pop	ebp
+	ret
+
+;void readmsr(uint32_t msr, byte* b_array_8);
+readmsr:
+	push	ebp
+	mov 	ebp, esp
+	push	ecx
+	push	eax
+	push	edx
+	push	ebx
+
+	mov	ecx, [c_param(0)]
+	rdmsr
+	mov	ebx, [c_param(1)]
+	mov	[ebx], eax
+	mov	[ebx+4], edx
+	
+	pop	ebx
+	pop	edx
+	pop	eax
+	pop	ecx
+	pop	ebp
+	ret
+
+;void writemsr(uint32_t msr, byte* b_array_8);
+writemsr:
+	push	ebp
+	mov 	ebp, esp
+	push	ecx
+	push	eax
+	push	edx
+	push	ebx
+
+	mov	ebx, [c_param(1)]
+	mov	eax, [ebx]
+	mov	edx, [ebx+4]
+
+	mov	ecx, [c_param(0)]
+	wrmsr
+	
+	pop	ebx
+	pop	edx
+	pop	eax
+	pop	ecx
+	pop	ebp
+	ret
+
+;void ltr(uint16_t tss_selector)
+ltr:
+	push	ebp
+	mov 	ebp, esp
+
+	ltr	word [c_param(0)]
+
+	pop	ebp
+	ret
+
+;void sti();
+__sti__:
+	push	ebp
+	mov	ebp, esp
+	
+	sti
+
+	pop	ebp
+	ret
+
+;void cli();
+__cli__:
+	push	ebp
+	mov	ebp, esp
+	
+        cli
+
+	pop	ebp
+	ret
+
+;uintptr_t retrieve_ptr(const uintptr_t ptr);
+retrieve_ptr:
+	push	ebp
+	mov	ebp, esp
+	
+        mov eax, [c_param(0)]
+
+	pop	ebp
+	ret
+
+;void elf_load(uintptr_t raw_elf);
+;orange's
+; --------------------------------------------------------------------------------------------
+extern  memcpy
+elf_load: ; iterate
+push	ebp
+mov	ebp, esp
+pushad
+
+xor	esi, esi
+
+push    ebx
+mov     ebx, [c_param(0)]
+mov	cx, word [ebx + 2Ch]; ┓ ecx <- pELFHdr->e_phnum
+pop     ebx
+
+movzx	ecx, cx	; ┛
+test	ecx, ecx
+jz	.end
+
+push    ebx
+mov     ebx, [c_param(0)]
+mov	esi, [ebx + 1Ch] ; esi <- pELFHdr->e_phoff
+add	esi, ebx ; esi <- OffsetOfKernel + pELFHdr->e_phoff
+pop     ebx
+
+.Begin:
+mov	eax, [esi + 0]
+cmp	eax, 0	; PT_NULL
+jz	.NoAction
+push	dword [esi + 010h] ; size ┓
+mov	eax, [esi + 04h] ; ┃
+
+
+add	eax, [c_param(0)] ; ┣ ::memcpy( (void*)(pPHdr->p_vaddr),
+
+
+push	eax	; src ┃ uchCode + pPHdr->p_offset,
+push	dword [esi + 08h] ; dst ┃ pPHdr->p_filesz;
+call	memcpy ; ┃
+add	esp, 12	; ┛
+
+.NoAction:
+add	esi, 020h	; esi += pELFHdr->e_phentsize
+dec	ecx
+jnz	.Begin
+
+.end:
+popad
+pop	ebp
+ret
+; InitKernel ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+;osdev
+;bool is_fpu_present();
+is_fpu_present:
+%define CR0_TS  0b1000
+%define CR0_EM  0b100
+
+	push	ebp
+	mov	ebp, esp
+
+
+        pushad
+	
+        MOV EDX, CR0                            ; Start probe, get CR0
+        push    edx
+        AND EDX, (-1) - (CR0_TS + CR0_EM)       ; clear TS and EM to force fpu access
+        MOV CR0, EDX                            ; store control word
+        FNINIT                                  ; load defaults to FPU
+        FNSTSW [.testword]                      ; store status word
+        pop     edx
+        mov cr0, edx
+        CMP word [.testword], 0                 ; compare the written status with the expected FPU state
+        popad
+        JNE .nofpu                              ; jump if the FPU hasn't written anything (i.e. it's not there)
+        JMP .hasfpu
+
+        .testword: DW 0x55AA                    ; store garbage to be able to detect a change
+
+
+.nofpu:
+        xor eax, eax
+        jmp .ret
+
+.hasfpu:
+        mov eax, 1
+
+.ret:
+	pop	ebp
+	ret
+
+;bool is_sse_present();
+is_sse_present:
+	push	ebp
+	mov	ebp, esp
+        pushad
+
+        mov eax, 0x1
+        cpuid
+        test edx, 1<<25
+
+        popad
+        jnz .hasSSE
+
+        xor eax, eax
+        jmp .ret
+
+.hasSSE:
+        mov eax, 1
+
+.ret:
+        
+	pop	ebp
+	ret
+
+;uintptr_t get_cr0()
+get_cr0:
+	push	ebp
+	mov	ebp, esp
+	
+        mov     eax, cr0
+
+	pop	ebp
+	ret
+
+;void set_cr0(uintptr_t val);
+set_cr0:
+	push	ebp
+	mov	ebp, esp
+	
+        push    eax
+        mov     eax, [c_param(0)]
+        mov     cr0, eax
+        pop     eax
+
+	pop	ebp
+	ret
+
+;uintptr_t get_cr4()
+get_cr4:
+	push	ebp
+	mov	ebp, esp
+	
+        mov     eax, cr4
+
+	pop	ebp
+	ret
+
+;void set_cr4(uintptr_t val);
+set_cr4:
+	push	ebp
+	mov	ebp, esp
+	
+        push    eax
+        mov     eax, [c_param(0)]
+        mov     cr4, eax
+        pop     eax
+
+	pop	ebp
+	ret
+
+;void set_cr3(uintptr_t val);
+set_cr3:
+	push	ebp
+	mov	ebp, esp
+	
+        push    eax
+        mov     eax, [c_param(0)]
+        mov     cr3, eax
+        pop     eax
+
+	pop	ebp
+	ret
+
+
+;void fxsave(uintptr_t destination);
+fxsave:
+	push	ebp
+	mov	ebp, esp
+	
+        push    ebx
+        mov     ebx, [c_param(0)]
+        fxsave  [c_param(0)]
+        pop     ebx
+
+	pop	ebp
+	ret
+
+;void fxrstor(uintptr_t source);
+fxrstor:
+	push	ebp
+	mov	ebp, esp
+	
+        push    ebx
+        mov     ebx, [c_param(0)]
+        fxrstor ebx
+        pop     ebx
+
+	pop	ebp
+	ret
+

@@ -1,0 +1,11 @@
+
+compile with:
+bash ./compile
+
+outputfile:
+./kernel32
+./kernel-daemon
+
+
+
+

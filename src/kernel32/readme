@@ -1,0 +1,11 @@
+
+compile with:
+bash ./compile
+
+outputfile:
+./kernel32
+
+notes:
+All asm includes must be in the include folder.  (and not the subfolders as well)
+C includes could be anywhere.  
+
