@@ -18,6 +18,7 @@ for name, fullname, root in walk(path, "o"):
 
 path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))+os.sep+"lib"
 for name, fullname, root in walk(path, "a"): obj.append(fullname)
+#for name, fullname, root in walk(path, "so"): obj.append(fullname)
 
 path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))+os.sep
 print("Linking Objects: ")

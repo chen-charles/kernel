@@ -91,6 +91,7 @@ int c_idt_init()
 
 void set_tss(uint32_t esp)
 {
+        KERNEL_INT_ESP = esp;
 	TSS *ptr = (TSS*)PM_TSS_PTR;
 	memset(ptr, 0, sizeof(TSS));
         INTR_STACKTOP = esp;

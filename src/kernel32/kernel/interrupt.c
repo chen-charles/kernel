@@ -268,7 +268,11 @@ void idt_init()
 
 //if return 0: iretd
 //else: jmp $(IF=0) 
-static uint8_t tick = 1;
+static uint8_t itick = 1;
+
+bool tick(uintptr_t scheduler, uintptr_t int_stackptr);
+uintptr_t CreateProcess(uintptr_t scheduler, uintptr_t pgtable_p, uint8_t priv, uint64_t priority);
+uintptr_t scheduler;
 
 //INTR_STACKTOP interrupt stacktop: task-switch context save
 //interrupt stack is always cleared no matter what
@@ -281,11 +285,12 @@ int interrupt(void* esp, uint32_t int_id)
     if (int_id == INT_VEC_APIC_TIMER)
     {
             *((byte* volatile)(arr)) = 0x30;
-            *((byte* volatile)(arr))  += tick;
+            *((byte* volatile)(arr))  += itick;
             *((byte* volatile)(arr+1))  = 0x07;
-            tick ++;
-            if (tick == 10) tick = 0;
+            itick ++;
+            if (itick == 10) itick = 0;
             (*((uint64_t*)SYS_INTERNAL_TIME_ADDR))++;
+            tick(scheduler, esp);
             return 0;
     }
     else if (int_id == INT_VEC_APIC_SPUR)
@@ -295,10 +300,9 @@ int interrupt(void* esp, uint32_t int_id)
     else if (int_id == INT_VEC_IOAPIC_IRQ1)
     {
             *((byte* volatile)(arr+40)) = 0x30;
-            *((byte* volatile)(arr+40)) += tick;
+            *((byte* volatile)(arr+40)) += itick;
             *((byte* volatile)(arr+41)) = 0x07;
-
-
+            
             /* 
              * Read keyboard status
              */

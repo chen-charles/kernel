@@ -1800,7 +1800,8 @@ last_int:
 
 interrupt_ret:
     mov eax, esp
-    add eax, 4
+    add eax, 4  ;intr. number
+    add eax, 32 ;pushad 32 bytes
     push eax	;pass original stack pointer
 
     mov eax, dword [esp+4]
@@ -1864,7 +1865,7 @@ interrupt_ret:
     popad   ;restore machine state before interrupt
 
     iretd
-    .die:
+.die:
     mov al, [last_int]
     jmp $
     

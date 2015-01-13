@@ -236,7 +236,7 @@ void* aligned_malloc(size_t size, size_t alignment)
     uintptr_t ptr = (uintptr_t)malloc(sz);
     
     if (!ptr) return (void*)0;
-    for (uintptr_t i=ptr; i<ptr+size*2; i++)
+    for (uintptr_t i=ptr; i<ptr+sz; i++)
     {
         if (i%alignment == 0)
         {
@@ -247,7 +247,7 @@ void* aligned_malloc(size_t size, size_t alignment)
 }
 
 
-void free(void* ptr)	//this ptr MUST be the first byte of the data space allocated
+void free(void* ptr)
 {
 	uintptr_t baseptr = ((uintptr_t)ptr)/PG_SIZE*PG_SIZE;
 	uintptr_t p = (uintptr_t)(baseptr + sizeof(malloc_page_h));
@@ -255,7 +255,7 @@ void free(void* ptr)	//this ptr MUST be the first byte of the data space allocat
 	{
 		malloc_entry_h* entry_p = (malloc_entry_h*)p;
 
-		if (p+sizeof(malloc_entry_h) == (uintptr_t)ptr)
+		if (p+sizeof(malloc_entry_h) >= (uintptr_t)ptr && p+entry_p->size < (uintptr_t)ptr)
 		{
 			CLEARBIT(entry_p->properties, 0);
 			return;

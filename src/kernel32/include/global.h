@@ -94,6 +94,7 @@ static uint64_t* SYS_LAPIC_BASE = (uint64_t*)SYS_LAPIC_ADDR;
 #define LAPIC_BASE (uint64_t)(*(SYS_LAPIC_BASE))
 #define LAPIC_EOI  0xb0
 
+static uintptr_t KERNEL_INT_ESP = 0;
 
 //Processes & Threads
 //

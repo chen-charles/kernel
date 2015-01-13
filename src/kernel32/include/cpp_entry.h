@@ -15,4 +15,10 @@
 extern "C" uintptr_t cpp_entry();
 extern "C" void global_constructor();
 
+
+extern "C" Scheduler* scheduler;
+extern "C" bool tick(Scheduler* scheduler, uintptr_t iret_ptr);
+extern "C" Process* CreateProcess(Scheduler* scheduler, page_table* pgtable_p, uint8_t priv, uint64_t priority);
+
+
 #endif

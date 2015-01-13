@@ -108,7 +108,7 @@ void* aligned_malloc(size_t size, size_t alignment);
 
 void* calloc (size_t num, size_t size);
 void* realloc (void* ptr, size_t size); //not tested yet    //even expands, the data is unchanged, but the ptr might do
-void free(void* ptr);	//this ptr MUST be the first byte of the data space allocated
+void free(void* ptr);	//this ptr can be any byte of the ptr allocated
 
 uint32_t mm_edit_page(bool isPresent, uint32_t virt_loc, uint32_t phy_loc, uint8_t access_r);
 void change_page_priviliage(uint32_t page_num, uint8_t access_r);

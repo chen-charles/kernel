@@ -175,4 +175,5 @@ align 32
         
         sti
         jmp $
+        jmp $
 
