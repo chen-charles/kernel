@@ -10,6 +10,7 @@
 #include    "global.h"
 #include    "./_object/_object.h"
 #include    "./Process/Process.h"
+#include    "sync.h"
 
 
 extern "C" uintptr_t cpp_entry();

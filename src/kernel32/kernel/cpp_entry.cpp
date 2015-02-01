@@ -57,9 +57,36 @@ extern "C" uintptr_t cpp_entry()
     psc.cs = 0x10;
     kernel->setStartupContext(&psc);
     
+    Timer* timer = new Timer();
+    timer->setTimer(Timer::TimerMode::MOD_ONESHOT, 1000);
+    timer->start();
+    
+    while (!timer->wait()) SYS_INTERNAL_TIME++;
+    timer->end();
     
     return 0;
 }
 
 
 extern "C" void __stack_chk_fail(){}
+extern "C" int snprintf ( char * s, size_t n, const char * format, ...)
+{
+    return 0;
+}
+
+extern "C" long int strtol (const char* str, char** endptr, int base)
+{
+    return 0;
+}
+extern "C" const unsigned short * * __ctype_b_loc (void)
+{
+    return 0;
+}
+extern "C" int * __errno_location(void)
+{
+    return 0;
+}
+extern "C" char *strdup(const char *s1)
+{
+    return 0;
+}

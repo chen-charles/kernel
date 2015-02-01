@@ -1,10 +1,10 @@
 #include    "../../include/_object/_object.h"
 
 
-//extern "C" void __cxa_pure_virtual()
-//{
-//    // Do nothing or print an error message.
-//}
+extern "C" void __cxa_pure_virtual()
+{
+    // Do nothing or print an error message.
+}
 
 void *operator new(size_t size)
 {
