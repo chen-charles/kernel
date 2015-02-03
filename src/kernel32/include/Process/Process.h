@@ -6,6 +6,7 @@
 #include    "../mm.h"
 #include    "../queue.h"
 #include    "../Vector.h"
+#include    "../sync.h"
 
 extern "C"
 {
@@ -29,6 +30,7 @@ extern "C"
 
 
 //idling: waiting for a system event to activate the process (IO idling ... )
+//note: when blocked system calls (such as WaitForSingleObject) are called, process will enter idling state
 //running: currently using the time slice
 //pending: waiting to use the time slice
 enum class RuntimeStatus { IDLING, RUNNING, PENDING };
@@ -95,6 +97,9 @@ public:
     
     uint64_t tick = 0;
     
+    Waitable *waitable_p = 0;
+    
+    
 private:
     uint8_t pg_access_r;
     
@@ -129,13 +134,21 @@ public:
             if (this->running != 0) 
             {
                 this->running->contextSave(iret_ptr, sizeof(ProcessStartupContext));
-                this->running->rt_status = RuntimeStatus::PENDING;
-                
+                if (this->running->rt_status == RuntimeStatus::RUNNING)
+                    this->running->rt_status = RuntimeStatus::PENDING;
             }
             
             this->running = &(vec_p->at(0));
             for (int i=0; i<vec_p->size(); i++)
             {
+                if (vec_p->at(i).rt_status == RuntimeStatus::IDLING)
+                {
+                    if (vec_p->at(i).waitable_p != 0 && vec_p->at(i).waitable_p->wait())
+                    {
+                        vec_p->at(i).rt_status = RuntimeStatus::PENDING;
+                    }
+                }
+                
                 if (vec_p->at(i).priority < this->running->priority && vec_p->at(i).rt_status == RuntimeStatus::PENDING)
                 {
                     this->running = &(vec_p->at(i));

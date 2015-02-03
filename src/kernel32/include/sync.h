@@ -4,6 +4,7 @@
 #include    "type.h"
 #include    "_object/_object.h"
 #include    "mm.h"
+#include    "Vector.h"
 
 
 class Waitable: public _object
@@ -36,7 +37,10 @@ public:
     }
     
     virtual bool isTimeout() const = 0;
-    virtual char* getName() = 0;    //c-type str
+    virtual char* getName() //c-type str
+    {
+        return (char*)0;
+    }    
     virtual bool isFinished() const = 0;
     virtual bool wait() = 0;        //should WaitForAnSingleObject return now ? true:false
 private:
@@ -96,7 +100,6 @@ public:
         return false;
     }
     
-    char* getName(){return 0;}
     bool wait()
     {
         if (mode == Timer::TimerMode::UNSPECIFIED) return false;
@@ -136,4 +139,80 @@ private:
     int startTime;
 };
 
+class Mutex: public Waitable
+{
+public:
+    Mutex(uint64_t pID, bool isPrivate): Waitable(pID, isPrivate)
+    {
+    }
+    
+    Mutex(): Waitable()
+    {
+    }
+    
+    bool open(int timeout)
+    {
+        this->startTime = SYS_INTERNAL_TIME;
+        this->timeout = timeout;
+        if (!this->isInUse) 
+        {
+            this->isInUse = true;
+            return true;
+        }
+        else
+        {
+            //call system routine(fetch process id, then add waitable, then set state)
+            //using the dumb way here
+            while(!wait());
+            if (!isTimeout()) 
+            {
+                isInUse = true;
+                return true;
+            }
+            else return false;
+        }
+    }
+    
+    void release()
+    {
+        this->isInUse = false;
+    }
+    
+    bool isTimeout() const
+    {
+        return startTime+timeout >= SYS_INTERNAL_TIME;
+    }
+
+    bool isFinished() const
+    {
+        return false;
+    }
+    
+    bool wait()
+    {
+        if (isTimeout()) return true;
+        else
+        {
+            if (!isInUse)
+            {
+                return true;
+            }
+            else return false;
+        }
+    }
+    
+private:
+    bool isInUse = false;
+    int timeout;
+    int startTime;
+};
+
+
+//extern "C" Scheduler* scheduler;   //cpp_entry init
+
+static Vector<Waitable*> *g_waitables_p;
+extern "C" void init_sync();
+
+
 #endif
+

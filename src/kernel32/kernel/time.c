@@ -1,4 +1,4 @@
-#include	"../include/timer.h"
+#include	"../include/time.h"
 
 void delay(int milliseconds)
 {

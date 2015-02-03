@@ -26,6 +26,7 @@ extern "C" Process* CreateProcess(Scheduler* scheduler, page_table* pgtable_p, u
 
 extern "C" uintptr_t cpp_entry()
 {
+    init_sync();
     scheduler = new Scheduler();
     
     
@@ -78,6 +79,7 @@ extern "C" long int strtol (const char* str, char** endptr, int base)
 {
     return 0;
 }
+
 extern "C" const unsigned short * * __ctype_b_loc (void)
 {
     return 0;

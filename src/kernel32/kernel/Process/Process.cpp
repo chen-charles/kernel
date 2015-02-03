@@ -18,6 +18,7 @@ Process::Process(page_table* pgtable_p, Privilege pp, uint64_t priority)
     
     this->priority = priority;
     this->max_priority = priority;
+
 }
 
 void Process::contextSave(byte* iret_ptr, greg_t size)

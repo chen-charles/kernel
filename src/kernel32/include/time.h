@@ -1,6 +1,6 @@
 
-#ifndef __TIMER__
-#define __TIMER__
+#ifndef __TIME_H__
+#define __TIME_H__
 
 #include	"global.h"
 #include	"type.h"
